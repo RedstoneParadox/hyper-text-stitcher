@@ -2,10 +2,9 @@ mod process;
 
 use std::collections::HashMap;
 use std::fs;
-use std::path::{Components, Path};
-use html_editor::operation::{Editable, Htmlifiable, Queryable, Selector};
+use std::path::{Path};
+use html_editor::operation::{Editable, Htmlifiable, Queryable};
 use html_editor::{Node, parse};
-use html_editor::Node::{Element, Text};
 use serde::{Deserialize, Serialize};
 use crate::process::process_page;
 
@@ -45,23 +44,6 @@ fn main() {
         let page_path = Path::new(&*page_path_string);
         fs::write(page_path, &*html).unwrap();
     }
-}
-
-fn process(components: &HashMap<String, ComponentConfig>, dom: Vec<Node>) -> Vec<Node> {
-    let mut processed_dom = dom;
-
-    for component in components {
-        let name = component.0;
-        let element_name = format!("comp-{}", name);
-        let config = component.1;
-        let component_document = load_document(&*name, &*config.path);
-        let selector = Selector::from(&*element_name);
-        let processed_dom = processed_dom.replace_with(&selector, |it| {
-            Text("hello".to_string())
-        });
-    }
-
-    return processed_dom
 }
 
 fn load_document(name: &str, path: &str) -> Vec<Node> {
