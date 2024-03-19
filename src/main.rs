@@ -75,10 +75,10 @@ fn save_rendered_page(page: PageConfig, rendered: &str) {
     split.pop();
     let foo = split.join("/");
 
-    let output_dir = format!("html{}", foo);
+    let output_dir = format!("html/{}", foo);
     let output_dir_path = Path::new(&*output_dir);
 
-    let output_location = format!("html{}", page.output);
+    let output_location = format!("html/{}", page.output);
     let output_location_path = Path::new(&*output_location);
 
     fs::create_dir_all(&output_dir_path).expect("foo");
