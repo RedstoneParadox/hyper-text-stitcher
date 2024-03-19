@@ -1,0 +1,7 @@
+include:
+  - "css"
+  - "images"
+
+pages:
+  - template: "home.html"
+    output: "/index.html"

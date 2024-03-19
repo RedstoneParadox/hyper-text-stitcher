@@ -1,7 +1,0 @@
-pages:
-  home:
-    path: ""
-    route: ""
-components:
-  greeting:
-    path: ""
