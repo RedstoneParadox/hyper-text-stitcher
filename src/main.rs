@@ -37,7 +37,7 @@ fn main() {
         };
         let output_dir = format!("html{}", page.output);
 
-        fs::write(&Path::new(&*output_dir), &*rendered).expect("TODO: panic message");
+        save_rendered_page(page, &*rendered)
     }
 
     if let Some(dirs) = config.include {
@@ -65,6 +65,21 @@ fn load_config() -> Config {
             ::std::process::exit(1);
         }
     }
+}
+
+fn save_rendered_page(page: PageConfig, rendered: &str) {
+    let mut split: Vec<&str> = page.output.split("/").collect();
+    split.pop();
+    let foo = split.join("/");
+
+    let output_dir = format!("html{}", foo);
+    let output_dir_path = Path::new(&*output_dir);
+
+    let output_location = format!("html{}", page.output);
+    let output_location_path = Path::new(&*output_location);
+
+    fs::create_dir_all(&output_dir_path).expect("foo");
+    fs::write(&output_location_path, rendered).expect("TODO: panic message");
 }
 
 pub fn copy<U: AsRef<Path>, V: AsRef<Path>>(from: U, to: V) -> Result<(), std::io::Error> {

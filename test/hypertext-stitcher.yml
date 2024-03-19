@@ -5,3 +5,5 @@ include:
 pages:
   - template: "home.html"
     output: "/index.html"
+  - template: "home.html"
+    output: "/other/index.html"
