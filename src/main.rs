@@ -1,3 +1,4 @@
+use std::collections::HashMap;
 use std::fs;
 use std::path::{Path, PathBuf};
 use serde::{Deserialize, Serialize};
@@ -7,7 +8,7 @@ use tera::{Context, Tera};
 #[derive(Serialize, Deserialize, Clone)]
 pub struct Config {
     pub include: Option<Vec<String>>,
-    pub pages: Vec<PageConfig>
+    pub pages: HashMap<String, PageConfig>
 }
 
 #[derive(Serialize, Deserialize, Clone)]
@@ -26,7 +27,10 @@ fn main() {
     };
     let config = load_config();
 
-    for page in config.pages {
+    for pair in config.pages {
+        let name = pair.0;
+        let page = pair.1;
+
         println!("Rendering \"{}\"", page.output);
         let rendered = match tera.render(&*page.template, &Context::new()) {
             Ok(p) => p,

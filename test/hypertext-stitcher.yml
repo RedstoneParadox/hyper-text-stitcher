@@ -3,7 +3,9 @@ include:
   - "images"
 
 pages:
-  - template: "home.html"
+  home:
+    template: "home.html"
     output: "/index.html"
-  - template: "home.html"
+  other:
+    template: "home.html"
     output: "/other/index.html"
