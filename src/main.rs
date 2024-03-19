@@ -35,7 +35,6 @@ fn main() {
                 ::std::process::exit(1);
             }
         };
-        let output_dir = format!("html{}", page.output);
 
         save_rendered_page(page, &*rendered)
     }
