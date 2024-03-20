@@ -1,4 +1,5 @@
 use std::collections::HashMap;
+use pathdiff::diff_paths;
 
 use tera::{Error, from_value, Function, Tera, to_value, Value};
 
@@ -14,6 +15,7 @@ pub fn init_terra(config: &Config) -> Tera {
     };
 
     tera.register_function("get_route", get_route(config.pages.clone()));
+    tera.register_function("get_route_relative", get_route_relative(config.pages.clone()));
 
     return tera;
 }
@@ -30,5 +32,16 @@ fn get_route(page_map: HashMap<String, PageConfig>) -> impl Function {
                 Err(_) => Err("oops".into()),
             }
         }
+    })
+}
+
+fn get_route_relative(page_map: HashMap<String, PageConfig>) -> impl Function {
+    Box::new(move |args: &HashMap<String, Value>| -> Result<Value, Error> {
+        let from = from_value::<String>(args.get("from").expect("oops").clone()).expect("oops");
+        let to = from_value::<String>(args.get("to").expect("oops").clone()).expect("oops");
+
+        let relative = diff_paths(&page_map.get(&*to).unwrap().output, &page_map.get(&*from).unwrap().output).expect("oops").into_os_string().into_string().expect("oops");
+
+        return Ok(Value::from(relative))
     })
 }

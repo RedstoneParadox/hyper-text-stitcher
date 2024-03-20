@@ -1,7 +1,8 @@
+{% set to="home" %}
 <div class="row">
     <div class="one-half column" style="margin-top: 25%">
         <h4>Basic Page</h4>
-        <p>This page is a placeholder with the CSS, font and favicon. It's just waiting for you to add some content!
-            If you need some help hit up the <a href="{{ get_route(page=page) }}">Skeleton documentation</a>.</p>
+        <p>This {{ get_route(page=page) }} page is a placeholder with the CSS, font and favicon. It's just waiting for you to add some content!
+            If you need some help hit up the <a href="{{ get_route_relative(from=page, to=to) }}">Skeleton documentation</a>.</p>
     </div>
 </div>

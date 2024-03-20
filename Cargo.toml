@@ -6,8 +6,7 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-rhai = "1.17.1"
-clap = "4.5.2"
+pathdiff = "0.2.1"
 serde = { version = "1.0.197", features = ["derive"] }
 serde_yaml = "0.9.32"
 tera = "1.19.1"
