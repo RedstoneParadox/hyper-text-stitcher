@@ -81,7 +81,7 @@ fn save_rendered_page(page: PageConfig, rendered: &str) {
     let output_location = format!("html/{}", page.output);
     let output_location_path = Path::new(&*output_location);
 
-    fs::create_dir_all(&output_dir_path).expect("foo");
+    fs::create_dir_all(&output_dir_path).expect("TODO: panic message");
     fs::write(&output_location_path, rendered).expect("TODO: panic message");
 }
 
