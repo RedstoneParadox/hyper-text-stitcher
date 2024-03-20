@@ -4,7 +4,7 @@ use std::collections::HashMap;
 use std::fs;
 use std::path::{Path, PathBuf};
 use serde::{Deserialize, Serialize};
-use tera::{Context, Tera};
+use tera::{Context};
 use crate::template::init_terra;
 
 

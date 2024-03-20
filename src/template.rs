@@ -5,7 +5,7 @@ use tera::{Error, from_value, Function, Tera, to_value, Value};
 use crate::{Config, PageConfig};
 
 pub fn init_terra(config: &Config) -> Tera {
-    let mut tera = match Tera::new("templates/**/*.html") {
+    let mut tera = match Tera::parse("templates/**/*.html") {
         Ok(t) => t,
         Err(e) => {
             println!("Parsing error(s): {}", e);
@@ -15,6 +15,17 @@ pub fn init_terra(config: &Config) -> Tera {
 
     tera.register_function("get_route", get_route(config.pages.clone()));
     tera.register_function("get_route_relative", get_route_relative(config.pages.clone()));
+    tera.register_function("get_resource_route_relative", get_resource_route_relative(config.pages.clone()));
+
+    tera.add_raw_template(
+        "macros.html",
+            r#"
+            {%- macro css(stylesheet) -%}
+            {%- set path = get_resource_route_relative(from=page, to="css/" ~ stylesheet) -%}
+            <link rel="stylesheet" href="{{ path }}">
+            {%- endmacro %}
+            "#
+    ).expect("TODO: Error Message");
 
     return tera;
 }
@@ -44,14 +55,24 @@ fn get_route_relative(page_map: HashMap<String, PageConfig>) -> impl Function {
     })
 }
 
+fn get_resource_route_relative(page_map: HashMap<String, PageConfig>)  -> impl Function {
+    Box::new(move |args: &HashMap<String, Value>| -> Result<Value, Error> {
+        let from = from_value::<String>(args.get("from").expect("oops").clone()).expect("oops");
+        let to = from_value::<String>(args.get("to").expect("oops").clone()).expect("oops");
+        let relative= computer_relative_path(page_map.get(&*from).unwrap().clone().output, to);
+
+        return Ok(Value::from(relative))
+    })
+}
+
 fn computer_relative_path(from: String, to: String) -> String {
     // If they're the same path, just save the computation path
     if from == to {
         return "".to_string();
     }
 
-    let mut from_split: Vec<&str> = from.split("\\").collect();
-    let mut to_split: Vec<&str> = to.split("\\").collect();
+    let mut from_split: Vec<&str> = from.split("/").collect();
+    let mut to_split: Vec<&str> = to.split("/").collect();
 
     // Reverse the paths so that we're looking at them from the bottom up
     from_split.reverse();
@@ -62,16 +83,6 @@ fn computer_relative_path(from: String, to: String) -> String {
         from_split.pop();
         to_split.pop();
     }
-
-    let from_len = from_split.len();
-    let to_len = to_split.len();
-
-    // Both "to" and "from" point to a file in the same directory
-    // or else "to" is in a subdirectory of "from"'s directory
-    if from_len == 1 && to_len >= 1 {
-        return to_split.pop().unwrap().to_string();
-    }
-
 
     let mut rel_path: Vec<String> = vec![];
 
@@ -84,5 +95,16 @@ fn computer_relative_path(from: String, to: String) -> String {
         rel_path.push(to_split.pop().unwrap().to_string())
     }
 
-    return rel_path.join("\\")
+    let mut joined = "".to_string();
+
+    for part in rel_path {
+        if !joined.is_empty() {
+            joined.push('\\');
+        }
+
+        joined.push_str(&*part)
+    }
+
+    println!("joined: {}", joined);
+    return joined
 }
