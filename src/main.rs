@@ -1,8 +1,11 @@
+mod template;
+
 use std::collections::HashMap;
 use std::fs;
 use std::path::{Path, PathBuf};
 use serde::{Deserialize, Serialize};
 use tera::{Context, Tera};
+use crate::template::init_terra;
 
 
 #[derive(Serialize, Deserialize, Clone)]
@@ -18,21 +21,18 @@ pub struct PageConfig {
 }
 
 fn main() {
-    let tera = match Tera::new("templates/**/*.html") {
-        Ok(t) => t,
-        Err(e) => {
-            println!("Parsing error(s): {}", e);
-            ::std::process::exit(1);
-        }
-    };
     let config = load_config();
+    let tera = init_terra(&config);
 
     for pair in config.pages {
         let name = pair.0;
         let page = pair.1;
+        let mut context = Context::new();
 
+        context.insert("page", &name);
         println!("Rendering \"{}\"", page.output);
-        let rendered = match tera.render(&*page.template, &Context::new()) {
+
+        let rendered = match tera.render(&*page.template, &context) {
             Ok(p) => p,
             Err(e) => {
                 println!("Rendering error(s): {}", e);

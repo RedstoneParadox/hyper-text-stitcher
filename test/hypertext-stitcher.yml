@@ -8,4 +8,4 @@ pages:
     output: "index.html"
   other:
     template: "home.html"
-    output: "other/index.html"
+    output: "other\\index.html"
