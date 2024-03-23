@@ -1,27 +1,18 @@
-mod template;
-
-use std::collections::HashMap;
 use std::fs;
 use std::path::{Path, PathBuf};
+
 use serde::{Deserialize, Serialize};
-use tera::{Context};
+use tera::Context;
+
+use config::PageConfig;
+
 use crate::template::init_terra;
 
-
-#[derive(Serialize, Deserialize, Clone)]
-pub struct Config {
-    pub include: Option<Vec<String>>,
-    pub pages: HashMap<String, PageConfig>
-}
-
-#[derive(Serialize, Deserialize, Clone)]
-pub struct PageConfig {
-    pub template: String,
-    pub output: String
-}
+mod template;
+mod config;
 
 fn main() {
-    let config = load_config();
+    let config = config::load_config();
     let tera = init_terra(&config);
 
     for pair in config.pages {
@@ -48,24 +39,6 @@ fn main() {
             println!("Copying directory \"{}\" to output directory", from);
             let to = format!("html/{}", from);
             copy(&Path::new(&*from), &Path::new(&*to)).expect("TODO: panic message");
-        }
-    }
-}
-
-fn load_config() -> Config {
-    let config_path = Path::new(&*"hypertext-stitcher.yml");
-    let config_file =  match fs::read_to_string(config_path) {
-        Ok(c) => c,
-        Err(e) => {
-            println!("Config error(s): {}", e);
-            ::std::process::exit(1);
-        }
-    };
-    match serde_yaml::from_str::<Config>(&*config_file) {
-        Ok(c) => c,
-        Err(e) =>  {
-            println!("Config error(s): {}", e);
-            ::std::process::exit(1);
         }
     }
 }

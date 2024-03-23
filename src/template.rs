@@ -2,7 +2,8 @@ use std::collections::HashMap;
 
 use tera::{Error, from_value, Function, Tera, to_value, Value};
 
-use crate::{Config, PageConfig};
+use crate::config::Config;
+use crate::config::PageConfig;
 
 pub fn init_terra(config: &Config) -> Tera {
     let mut tera = match Tera::parse("templates/**/*.html") {
