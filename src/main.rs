@@ -1,17 +1,29 @@
 use std::fs;
 use std::path::{Path, PathBuf};
+use clap::Parser;
 
 use serde::{Deserialize, Serialize};
 use tera::Context;
 
 use config::PageConfig;
+use crate::command::{Cli, Commands};
 
 use crate::template::init_terra;
 
 mod template;
 mod config;
+mod command;
 
 fn main() {
+    let args = Cli::parse();
+
+    match args.command {
+        Commands::Build => render_all()
+    }
+}
+
+fn render_all() {
+
     let config = config::load_config();
     let tera = init_terra(&config);
 
