@@ -1,11 +1,13 @@
 use std::collections::HashMap;
+use std::path::Path;
 
-use tera::{Error, from_value, Function, Tera, to_value, Value};
+use tera::{Context, Error, from_value, Function, Tera, to_value, Value};
 
 use crate::config::Config;
 use crate::config::PageConfig;
+use crate::{copy, save_rendered_page};
 
-pub fn init_terra(config: &Config) -> Tera {
+pub fn init_tera(config: &Config) -> Tera {
     let mut tera = match Tera::parse("templates/**/*.html") {
         Ok(t) => t,
         Err(e) => {
@@ -29,6 +31,40 @@ pub fn init_terra(config: &Config) -> Tera {
     ).expect("TODO: Error Message");
 
     return tera;
+}
+
+pub fn render_all(config: Config, tera: Tera) {
+    for pair in config.pages {
+        let name = pair.0;
+        let page = pair.1;
+
+        render_page(name, page, &tera)
+    }
+
+    if let Some(dirs) = config.include {
+        for from in dirs {
+            println!("Copying directory \"{}\" to output directory", from);
+            let to = format!("html/{}", from);
+            copy(&Path::new(&*from), &Path::new(&*to)).expect("TODO: panic message");
+        }
+    }
+}
+
+pub fn render_page(name: String, page: PageConfig, tera: &Tera) {
+    let mut context = Context::new();
+
+    context.insert("page", &name);
+    println!("Rendering \"{}\"", page.output);
+
+    let rendered = match tera.render(&*page.template, &context) {
+        Ok(p) => p,
+        Err(e) => {
+            println!("Rendering error(s): {}", e);
+            ::std::process::exit(1);
+        }
+    };
+
+    save_rendered_page(page, &*rendered)
 }
 
 fn get_route(page_map: HashMap<String, PageConfig>) -> impl Function {

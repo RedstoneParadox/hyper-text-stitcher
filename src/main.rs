@@ -9,9 +9,9 @@ use config::PageConfig;
 use crate::command::{Cli, Commands};
 use crate::server::start_dev_server;
 
-use crate::template::init_terra;
+use crate::render::{init_tera, render_all};
 
-mod template;
+mod render;
 mod config;
 mod command;
 mod server;
@@ -20,42 +20,16 @@ fn main() {
     let args = Cli::parse();
 
     match args.command {
-        Commands::Build => render_all(),
+        Commands::Build => build_site(),
         Commands::Serve => start_dev_server()
     }
 }
 
-fn render_all() {
-
+fn build_site() {
     let config = config::load_config();
-    let tera = init_terra(&config);
+    let tera = init_tera(&config);
 
-    for pair in config.pages {
-        let name = pair.0;
-        let page = pair.1;
-        let mut context = Context::new();
-
-        context.insert("page", &name);
-        println!("Rendering \"{}\"", page.output);
-
-        let rendered = match tera.render(&*page.template, &context) {
-            Ok(p) => p,
-            Err(e) => {
-                println!("Rendering error(s): {}", e);
-                ::std::process::exit(1);
-            }
-        };
-
-        save_rendered_page(page, &*rendered)
-    }
-
-    if let Some(dirs) = config.include {
-        for from in dirs {
-            println!("Copying directory \"{}\" to output directory", from);
-            let to = format!("html/{}", from);
-            copy(&Path::new(&*from), &Path::new(&*to)).expect("TODO: panic message");
-        }
-    }
+    render_all(config, tera)
 }
 
 fn save_rendered_page(page: PageConfig, rendered: &str) {
