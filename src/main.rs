@@ -7,18 +7,21 @@ use tera::Context;
 
 use config::PageConfig;
 use crate::command::{Cli, Commands};
+use crate::server::start_dev_server;
 
 use crate::template::init_terra;
 
 mod template;
 mod config;
 mod command;
+mod server;
 
 fn main() {
     let args = Cli::parse();
 
     match args.command {
-        Commands::Build => render_all()
+        Commands::Build => render_all(),
+        Commands::Serve => start_dev_server()
     }
 }
 
